@@ -6,9 +6,17 @@
   <meta name="description" content="">
   <meta name="author" content="">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  
+
+  <script>
+    (function () {
+      var saved = localStorage.getItem('theme');
+      var theme = saved || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
+
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
-  
+
   <style>
     * {
       margin: 0;
@@ -16,14 +24,70 @@
       box-sizing: border-box;
     }
 
+    :root,
+    [data-theme="dark"] {
+      --bg: #0a0a0a;
+      --bg-soft: #151515;
+      --bg-soft-hover: #1a1a1a;
+      --border: #2a2a2a;
+      --text: #e0e0e0;
+      --text-muted: #b0b0b0;
+      --text-faint: #808080;
+      --accent: #00ff88;
+      --accent-deep: #00cc6a;
+      --accent-glow: rgba(0, 255, 136, 0.3);
+      --accent-glow-strong: rgba(0, 255, 136, 0.5);
+      --accent-glow-soft: rgba(0, 255, 136, 0.03);
+      --primary-text: #0a0a0a;
+      --icon-filter: brightness(0) invert(1);
+      --icon-hover-filter: brightness(0) invert(0);
+      --primary-icon-filter: brightness(0);
+      --matrix-fade: rgba(10, 10, 10, 0.05);
+      --matrix-glyph: #00ff88;
+      --matrix-opacity: 0.15;
+      --toggle-bg: #151515;
+      --toggle-border: #2a2a2a;
+      --toggle-icon: #e0e0e0;
+    }
+
+    [data-theme="light"] {
+      --bg: #f4f6f5;
+      --bg-soft: #ffffff;
+      --bg-soft-hover: #eef2f0;
+      --border: #d5ddd8;
+      --text: #121816;
+      --text-muted: #3d4a43;
+      --text-faint: #6a7870;
+      --accent: #059669;
+      --accent-deep: #047857;
+      --accent-glow: rgba(5, 150, 105, 0.2);
+      --accent-glow-strong: rgba(5, 150, 105, 0.35);
+      --accent-glow-soft: rgba(5, 150, 105, 0.06);
+      --primary-text: #ffffff;
+      --icon-filter: brightness(0) saturate(100%);
+      --icon-hover-filter: brightness(0) invert(1);
+      --primary-icon-filter: brightness(0) invert(1);
+      --matrix-fade: rgba(244, 246, 245, 0.12);
+      --matrix-glyph: #059669;
+      --matrix-opacity: 0.08;
+      --toggle-bg: #ffffff;
+      --toggle-border: #d5ddd8;
+      --toggle-icon: #121816;
+    }
+
     html {
       overflow-x: hidden;
+      color-scheme: dark;
+    }
+
+    [data-theme="light"] {
+      color-scheme: light;
     }
 
     body {
       font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: #0a0a0a;
-      color: #e0e0e0;
+      background: var(--bg);
+      color: var(--text);
       line-height: 1.6;
       min-height: 100vh;
       display: flex;
@@ -33,6 +97,64 @@
       position: relative;
       overflow-x: hidden;
       width: 100%;
+      transition: background-color 0.35s ease, color 0.35s ease;
+    }
+
+    .theme-toggle {
+      position: fixed;
+      top: 1.25rem;
+      right: 1.25rem;
+      z-index: 10;
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      border: 1px solid var(--toggle-border);
+      background: var(--toggle-bg);
+      color: var(--toggle-icon);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.25s ease, box-shadow 0.3s ease;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    }
+
+    .theme-toggle:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px var(--accent-glow);
+    }
+
+    .theme-toggle:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 3px;
+    }
+
+    .theme-toggle svg {
+      width: 20px;
+      height: 20px;
+      position: absolute;
+      transition: opacity 0.25s ease, transform 0.35s ease;
+    }
+
+    .theme-toggle .icon-sun {
+      opacity: 0;
+      transform: rotate(-45deg) scale(0.6);
+    }
+
+    .theme-toggle .icon-moon {
+      opacity: 1;
+      transform: rotate(0) scale(1);
+    }
+
+    [data-theme="light"] .theme-toggle .icon-sun {
+      opacity: 1;
+      transform: rotate(0) scale(1);
+    }
+
+    [data-theme="light"] .theme-toggle .icon-moon {
+      opacity: 0;
+      transform: rotate(45deg) scale(0.6);
     }
 
     .container {
@@ -53,39 +175,42 @@
       width: 180px;
       height: 180px;
       border-radius: 50%;
-      border: 3px solid #00ff88;
-      box-shadow: 0 0 30px rgba(0, 255, 136, 0.3);
+      border: 3px solid var(--accent);
+      box-shadow: 0 0 30px var(--accent-glow);
       object-fit: cover;
       transition: all 0.3s ease;
     }
 
     img.avatar:hover {
       transform: scale(1.05);
-      box-shadow: 0 0 40px rgba(0, 255, 136, 0.5);
+      box-shadow: 0 0 40px var(--accent-glow-strong);
     }
 
     h1 {
       font-size: 2.5rem;
       font-weight: 700;
       margin-bottom: 1rem;
-      color: #00ff88;
+      color: var(--accent);
       letter-spacing: -0.5px;
+      transition: color 0.35s ease;
     }
 
     .bio {
       font-size: 1rem;
       line-height: 1.7;
-      color: #b0b0b0;
+      color: var(--text-muted);
       margin-bottom: 1.5rem;
       max-width: 500px;
       margin-left: auto;
       margin-right: auto;
+      transition: color 0.35s ease;
     }
 
     .bio-short {
       font-size: 0.95rem;
-      color: #808080;
+      color: var(--text-faint);
       margin-bottom: 2.5rem;
+      transition: color 0.35s ease;
     }
 
     .social-icons {
@@ -100,8 +225,8 @@
       width: 50px;
       height: 50px;
       border-radius: 12px;
-      background: #151515;
-      border: 1px solid #2a2a2a;
+      background: var(--bg-soft);
+      border: 1px solid var(--border);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -110,20 +235,20 @@
     }
 
     .social-icons a:hover {
-      background: #00ff88;
-      border-color: #00ff88;
+      background: var(--accent);
+      border-color: var(--accent);
       transform: translateY(-3px);
-      box-shadow: 0 5px 20px rgba(0, 255, 136, 0.3);
+      box-shadow: 0 5px 20px var(--accent-glow);
     }
 
     .social-icons a:hover img {
-      filter: brightness(0) invert(0);
+      filter: var(--icon-hover-filter);
     }
 
     .social-icons img {
       width: 24px;
       height: 24px;
-      filter: brightness(0) invert(1);
+      filter: var(--icon-filter);
       transition: all 0.3s ease;
     }
 
@@ -133,10 +258,10 @@
       max-width: 400px;
       margin: 0 auto 1rem;
       padding: 0.9rem 1.5rem;
-      background: #151515;
-      border: 1px solid #2a2a2a;
+      background: var(--bg-soft);
+      border: 1px solid var(--border);
       border-radius: 12px;
-      color: #e0e0e0;
+      color: var(--text);
       text-decoration: none;
       font-size: 0.95rem;
       font-weight: 600;
@@ -146,44 +271,53 @@
       gap: 0.7rem;
     }
 
-    .button:hover {
-      background: #1a1a1a;
-      border-color: #00ff88;
+    .button:not(.button-primary):hover {
+      background: var(--bg-soft-hover);
+      border-color: var(--accent);
       transform: translateX(5px);
-      box-shadow: -5px 0 15px rgba(0, 255, 136, 0.2);
+      box-shadow: -5px 0 15px var(--accent-glow);
     }
 
     .button img.icon {
       width: 20px;
       height: 20px;
-      filter: brightness(0) invert(1);
+      filter: var(--icon-filter);
       flex-shrink: 0;
     }
 
     .button-primary {
-      background: linear-gradient(135deg, #00ff88 0%, #00cc6a 100%);
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent-deep) 100%);
       border: none;
-      color: #0a0a0a;
+      color: var(--primary-text);
       font-weight: 700;
     }
 
     .button-primary:hover {
+      background: linear-gradient(135deg, #33ff9f 0%, var(--accent) 100%);
       transform: translateX(5px) scale(1.02);
-      box-shadow: -5px 0 25px rgba(0, 255, 136, 0.4);
-      background: linear-gradient(135deg, #00ff88 0%, #00dd77 100%);
+      box-shadow: -5px 0 25px var(--accent-glow-strong);
+      color: var(--primary-text);
+    }
+
+    [data-theme="light"] .button-primary:hover {
+      background: linear-gradient(135deg, #10b981 0%, var(--accent-deep) 100%);
     }
 
     .button-primary img.icon {
-      filter: brightness(0);
+      filter: var(--primary-icon-filter);
+    }
+
+    .button-primary:hover img.icon {
+      filter: var(--primary-icon-filter);
     }
 
     .divider {
       height: 1px;
-      background: linear-gradient(90deg, transparent, #2a2a2a, transparent);
+      background: linear-gradient(90deg, transparent, var(--border), transparent);
       margin: 2rem 0;
+      transition: background 0.35s ease;
     }
 
-    /* Subtle animated background */
     body::before {
       content: '';
       position: fixed;
@@ -191,14 +325,13 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: 
-        radial-gradient(circle at 20% 50%, rgba(0, 255, 136, 0.03) 0%, transparent 50%),
-        radial-gradient(circle at 80% 80%, rgba(0, 255, 136, 0.03) 0%, transparent 50%);
+      background:
+        radial-gradient(circle at 20% 50%, var(--accent-glow-soft) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, var(--accent-glow-soft) 0%, transparent 50%);
       pointer-events: none;
       z-index: -1;
     }
 
-    /* Hacker matrix effect */
     .matrix {
       position: fixed;
       top: 0;
@@ -207,12 +340,20 @@
       height: 100%;
       pointer-events: none;
       z-index: 0;
-      opacity: 0.15;
+      opacity: var(--matrix-opacity);
+      transition: opacity 0.35s ease;
     }
 
     @media (max-width: 600px) {
       body {
         padding: 15px;
+      }
+
+      .theme-toggle {
+        top: 0.85rem;
+        right: 0.85rem;
+        width: 40px;
+        height: 40px;
       }
 
       h1 {
@@ -259,12 +400,47 @@
 </head>
 
 <body>
+  <button class="theme-toggle" type="button" aria-label="Toggle light and dark mode" title="Toggle theme">
+    <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="4"></circle>
+      <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path>
+    </svg>
+    <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M21 14.5A8.5 8.5 0 1 1 9.5 3a7 7 0 0 0 11.5 11.5z"></path>
+    </svg>
+  </button>
+
   <canvas class="matrix"></canvas>
-  
+
   <script>
-    // Subtle matrix rain effect
+    const root = document.documentElement;
+    const toggle = document.querySelector('.theme-toggle');
     const canvas = document.querySelector('.matrix');
     const ctx = canvas.getContext('2d');
+
+    function getCssVar(name) {
+      return getComputedStyle(root).getPropertyValue(name).trim();
+    }
+
+    function clearMatrixFrame() {
+      ctx.fillStyle = getCssVar('--bg');
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+
+    function getTheme() {
+      return root.getAttribute('data-theme') || 'dark';
+    }
+
+    function setTheme(theme) {
+      root.setAttribute('data-theme', theme);
+      localStorage.setItem('theme', theme);
+      toggle.setAttribute('aria-label', theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
+      clearMatrixFrame();
+    }
+
+    toggle.addEventListener('click', () => {
+      setTheme(getTheme() === 'dark' ? 'light' : 'dark');
+    });
 
     function resizeCanvas() {
       canvas.width = window.innerWidth;
@@ -272,6 +448,7 @@
     }
 
     resizeCanvas();
+    setTheme(getTheme());
 
     const chars = '01アイウエオカキクケコサシスセソタチツテト';
     const fontSize = 14;
@@ -279,10 +456,10 @@
     let drops = Array(columns).fill(1);
 
     function draw() {
-      ctx.fillStyle = 'rgba(10, 10, 10, 0.05)';
+      ctx.fillStyle = getCssVar('--matrix-fade');
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      ctx.fillStyle = '#00ff88';
+      ctx.fillStyle = getCssVar('--matrix-glyph');
       ctx.font = fontSize + 'px monospace';
 
       for (let i = 0; i < drops.length; i++) {
@@ -304,7 +481,7 @@
       drops = Array(columns).fill(1);
     });
   </script>
-  
+
   <div class="container">
     <div class="avatar-container">
       <img src="images/Juan.jpg" srcset="images/ai_juan.jpeg" class="avatar" alt="Juan Pablo Armesto">
