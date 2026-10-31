@@ -89,9 +89,9 @@
       --icon-filter: brightness(0) saturate(100%);
       --icon-hover-filter: brightness(0) invert(1);
       --primary-icon-filter: brightness(0) invert(1);
-      --matrix-fade: rgba(244, 246, 245, 0.12);
-      --matrix-glyph: #059669;
-      --matrix-opacity: 0.08;
+      --matrix-fade: rgba(244, 246, 245, 0.08);
+      --matrix-glyph: #047857;
+      --matrix-opacity: 0.22;
       --toggle-bg: #ffffff;
       --toggle-border: #d5ddd8;
       --toggle-icon: #121816;
@@ -483,7 +483,9 @@
     }
   </style>
 
-  <link rel="icon" type="image/x-icon" href="images/cyber_viking.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="images/favicon-180.png">
 </head>
 
 <body>
@@ -651,8 +653,10 @@
 
     const chars = '01アイウエオカキクケコサシスセソタチツテト';
     const fontSize = 14;
+    const frameInterval = 90;
     let columns = 0;
     let drops = [];
+    let lastFrameTime = 0;
 
     function resizeCanvas() {
       canvas.width = window.innerWidth;
@@ -662,8 +666,13 @@
       clearMatrixFrame();
     }
 
-    function draw() {
+    function draw(timestamp) {
       if (!running) return;
+
+      animId = requestAnimationFrame(draw);
+
+      if (timestamp - lastFrameTime < frameInterval) return;
+      lastFrameTime = timestamp;
 
       ctx.fillStyle = matrixFade;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -680,8 +689,6 @@
         }
         drops[i]++;
       }
-
-      animId = requestAnimationFrame(draw);
     }
 
     function startMatrix() {
